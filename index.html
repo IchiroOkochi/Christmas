@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Previous styles remain the same until .trunk */
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color:#a1d5e0;
+            background-image: url('https://codehs.com/uploads/6ee282ea97fa437b27d2f4e6634dd46a');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        .container-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+        .link-panel {
+            position: fixed;
+            right: -100%;
+            top: 0;
+            width: 40%;
+            height: 100vh;
+            background: rgba(42, 42, 42, 0.95);
+            transition: right 0.3s ease-in-out;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .link-panel.active {
+            right: 0;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #1a1a1a;
+        }
+
+        .panel-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+
+        .panel-content {
+            flex: 1;
+            width: 100%;
+            height: calc(100% - 70px);
+            border: none;
+        }
+
+        .container-right {
+            width: min(300px, 90vw);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            height: fit-content;
+            display:none;
+        }
+
+        .tree {
+            position: relative;
+            width: min(90vw, 80vh, 800px);
+            height: min(100vh - 200px, 90vw * 1.125, 900px);
+            margin: auto;
+            
+        }
+
+        .tree-part {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            opacity:0;
+            z-index: 2;  /* Ensure tree parts are above trunk */
+        }
+
+        #part1 {
+            top: 0;
+            border-left: calc(min(90vw, 80vh, 800px) * 0.15) solid transparent;
+            border-right: calc(min(90vw, 80vh, 800px) * 0.15) solid transparent;
+            border-bottom: calc(min(90vw, 80vh, 800px) * 0.3) solid #0d5c0d;
+        }
+
+        #part2 {
+            top: calc(min(90vw, 80vh, 800px) * 0.2);
+            border-left: calc(min(90vw, 80vh, 800px) * 0.225) solid transparent;
+            border-right: calc(min(90vw, 80vh, 800px) * 0.225) solid transparent;
+            border-bottom: calc(min(90vw, 80vh, 800px) * 0.35) solid #0d5c0d;
+        }
+
+        #part3 {
+            top: calc(min(90vw, 80vh, 800px) * 0.45);
+            border-left: calc(min(90vw, 80vh, 800px) * 0.3) solid transparent;
+            border-right: calc(min(90vw, 80vh, 800px) * 0.3) solid transparent;
+            border-bottom: calc(min(90vw, 80vh, 800px) * 0.4) solid #0d5c0d;
+        }
+
+        .trunk {
+            position: absolute;
+            
+            bottom: -20px;  /* Changed from bottom: calc(...) */
+            left: 52%;
+            transform: translateX(-50%);
+            width: calc(min(90vw, 80vh, 800px) * 0.22);
+            height: calc(min(90vw, 80vh, 800px) * 0.25);
+            z-index: 1;  
+            background-image: url('https://codehs.com/uploads/51bdfb2c7262cfefbbd401cce4310109');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .ornament {
+            position: absolute;
+            width: calc(min(90vw, 80vh, 800px) * 0.0375);
+            height: calc(min(90vw, 80vh, 800px) * 0.0375);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s;
+            animation: appear 0.3s ease-out;
+            z-index: 20;
+        }
+
+        .ornament:hover {
+            transform: scale(1.2);
+            z-index:30;
+        }
+
+        @keyframes appear {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #ff6666;
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+        }
+        .image-ornament {
+            position: absolute;
+            z-index: 3; /* Ensure it's above the green triangles and other elements */
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .image-ornament:hover {
+            transform: scale(1.2) rotate(0deg); /* Slight zoom effect on hover */
+            
+        }
+        
+        
+    </style>
+</head>
+<body>
+    
+    <div class="container-left">
+        <h1>🎄 Interactive Christmas Tree 🎄</h1>
+        <div class="tree">
+            <div class="tree-part" id="part1"></div>
+            <div class="tree-part" id="part2"></div>
+            <div class="tree-part" id="part3"></div>
+            <div class="trunk"></div>
+        </div>
+    </div>
+    <div class="link-panel">
+        <div class="panel-header">
+            <h2>Link Content</h2>
+            <button class="panel-close">&times;</button>
+        </div>
+        <iframe class="panel-content"></iframe>
+    </div>
+    <div class="container-right">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Controls</h2>
+            <button id="closeControls" style="padding: 5px 10px; font-size: 14px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 5px;">Close</button>
+        </div>
+        <div class="buttons">
+            <table id="controlsTable" style="width: 100%; color: white; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 10px;">Name</th>
+                        <th style="text-align: left; padding: 10px;">Link</th>
+                        <th style="text-align: center; padding: 10px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+            <button onclick="addTableRow()" style="padding: 10px; font-size: 14px; margin-top: 10px; width: 100%;">Add Row</button>
+        </div>
+    </div>
+    
+
+
+
+
+
+    <script>
+        // Tree size calculation
+        const getTreeSize = () => {
+            return Math.min(window.innerWidth * 0.9, window.innerHeight * 0.8, 800);
+        };
+        
+        // Tree section definitions
+        const treeSections = [
+            { topRatio: 0, widthRatio: 0.3, heightRatio: 0.3 },    // First triangle
+            { topRatio: 0.2, widthRatio: 0.45, heightRatio: 0.35 }, // Second triangle
+            { topRatio: 0.45, widthRatio: 0.6, heightRatio: 0.4 }  // Third triangle
+        ];
+        
+        // Color generation for ornaments
+        function getRandomColor() {
+            const colors = ['#ff0000', '#ff69b4', '#4169e1', '#ffa500', '#9400d3'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        // Triangle collision detection
+        function isInTriangle(x, y, level) {
+            const treeSize = getTreeSize();
+            const section = treeSections[level];
+            const centerX = treeSize / 2;
+            
+            const sectionTop = section.topRatio * treeSize;
+            const sectionHeight = section.heightRatio * treeSize;
+            const sectionWidth = section.widthRatio * treeSize;
+            
+            const relativeX = x - centerX;
+            const relativeY = y - sectionTop;
+            
+            if (relativeY < 0 || relativeY > sectionHeight) return false;
+            
+            const maxWidth = (relativeY / sectionHeight) * (sectionWidth / 2);
+            return Math.abs(relativeX) <= maxWidth;
+        }
+        
+        // Track placed ornaments
+        const placedOrnaments = [];
+        
+        // Get random position for ornaments
+        function getRandomPosition() {
+            const treeSize = getTreeSize();
+            let x, y, level, attempts = 0;
+            let overlapping;
+        
+            do {
+                level = Math.floor(Math.random() * 3);
+                const section = treeSections[level];
+        
+                const sectionTop = section.topRatio * treeSize;
+                const sectionHeight = section.heightRatio * treeSize;
+                const sectionWidth = section.widthRatio * treeSize;
+        
+                y = sectionTop + Math.random() * sectionHeight;
+                const relativeY = y - sectionTop;
+                const maxSpread = (relativeY / sectionHeight) * (sectionWidth / 2);
+        
+                x = (treeSize / 2) + (Math.random() * 2 - 1) * maxSpread;
+        
+                // Check for overlap with existing ornaments
+                overlapping = placedOrnaments.some(pos => {
+                    const distance = Math.sqrt((pos.x - x) ** 2 + (pos.y - y) ** 2);
+                    return distance < treeSize * 0.04;
+                });
+        
+                attempts++;
+            } while (overlapping && attempts < 100);
+        
+            if (!overlapping) {
+                placedOrnaments.push({ x, y });
+            }
+        
+            return { x, y };
+        }
+        
+        // Save table data to localStorage
+        function saveTableData() {
+            const rows = [];+
+            document.querySelectorAll("#controlsTable tbody tr").forEach(row => {
+                const nameInput = row.querySelector("td:nth-child(1) input");
+                const linkInput = row.querySelector("td:nth-child(2) input");
+                if (nameInput && linkInput) {
+                    const name = nameInput.value;
+                    const link = linkInput.value;
+                    rows.push({ name, link });
+                }
+            });
+            localStorage.setItem("tableData", JSON.stringify(rows));
+        }
+        
+        // Load table data from localStorage
+        function loadTableData() {
+            const storedData = localStorage.getItem("tableData");
+            if (storedData) {
+                const rows = JSON.parse(storedData);
+                rows.forEach(row => {
+                    addTableRow(row.name, row.link, true);
+                });
+            }
+        }
+        
+        // Add ornament function
+        function addOrnament(name = "", link = "") {
+            const ornament = document.createElement("div");
+            ornament.className = "ornament";
+        
+            const pos = getRandomPosition();
+            ornament.style.left = pos.x + "px";
+            ornament.style.top = pos.y + "px";
+            ornament.style.backgroundColor = getRandomColor();
+        
+            const initialSpan = document.createElement("span");
+            const initial = name ? name.charAt(0).toUpperCase() : "?";
+            initialSpan.textContent = initial;
+            initialSpan.style.color = "white";
+            initialSpan.style.fontSize = "calc(min(90vw, 80vh, 800px) * 0.02)";
+            initialSpan.style.fontWeight = "bold";
+            initialSpan.style.display = "flex";
+            initialSpan.style.justifyContent = "center";
+            initialSpan.style.alignItems = "center";
+            initialSpan.style.height = "100%";
+            initialSpan.style.width = "100%";
+        
+            ornament.appendChild(initialSpan);
+            document.querySelector(".tree").appendChild(ornament);
+        
+            if (link) {
+                ornament.onclick = () => {
+                    openLinkPanel(link);
+                };
+            }
+        
+            return ornament;
+        }
+        function openLinkPanel(url) {
+            const panel = document.querySelector('.link-panel');
+            const iframe = panel.querySelector('iframe');
+            iframe.src = url;
+            panel.classList.add('active');
+        }
+
+        function closeLinkPanel() {
+            const panel = document.querySelector('.link-panel');
+            const iframe = panel.querySelector('iframe');
+            panel.classList.remove('active');
+            setTimeout(() => {
+                iframe.src = 'about:blank';
+            }, 300);
+        }
+        document.querySelector('.panel-close').addEventListener('click', closeLinkPanel);
+        
+        // Add table row function
+        function addTableRow(name = "", link = "", isRestoring = false) {
+            const tableBody = document.querySelector("#controlsTable tbody");
+            const row = document.createElement("tr");
+            
+            // Create name input cell
+            const nameCell = document.createElement("td");
+            const nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.placeholder = "Enter name";
+            nameInput.value = name;
+            nameInput.style.width = "90%";
+            nameInput.style.padding = "10px";
+            nameInput.style.fontSize = "16px";
+            nameInput.style.border = "1px solid #ccc";
+            nameInput.style.borderRadius = "5px";
+            nameCell.style.padding = "10px";
+            nameCell.appendChild(nameInput);
+            
+            // Create link input cell
+            const linkCell = document.createElement("td");
+            const linkInput = document.createElement("input");
+            linkInput.type = "text";
+            linkInput.placeholder = "Enter link";
+            linkInput.value = link;
+            linkInput.style.width = "90%";
+            linkInput.style.padding = "10px";
+            linkInput.style.fontSize = "16px";
+            linkInput.style.border = "1px solid #ccc";
+            linkInput.style.borderRadius = "5px";
+            linkCell.style.padding = "10px";
+            linkCell.appendChild(linkInput);
+            
+            // Create actions cell
+            const actionsCell = document.createElement("td");
+            const removeButton = document.createElement("button");
+            removeButton.textContent = "✖";
+            removeButton.style.padding = "5px";
+            removeButton.style.fontSize = "14px";
+            removeButton.style.border = "none";
+            removeButton.style.color = "white";
+            removeButton.style.backgroundColor = "#e74c3c";
+            removeButton.style.cursor = "pointer";
+            removeButton.style.borderRadius = "50%";
+            removeButton.style.width = "30px";
+            removeButton.style.height = "30px";
+            
+            // Add cells to row
+            row.appendChild(nameCell);
+            row.appendChild(linkCell);
+            row.appendChild(actionsCell);
+            actionsCell.appendChild(removeButton);
+            tableBody.appendChild(row);
+            
+            // Create ornament
+            const ornament = addOrnament(name, link);
+            
+            // Update ornament when name changes
+            nameInput.addEventListener("input", () => {
+                const initial = nameInput.value ? nameInput.value.charAt(0).toUpperCase() : "?";
+                const span = ornament.querySelector("span");
+                span.textContent = initial;
+                ornament.title = nameInput.value || "No name";
+                saveTableData();
+            });
+            
+            // Update ornament when link changes
+            linkInput.addEventListener("input", () => {
+                ornament.onclick = () => {
+                    if (linkInput.value) window.open(linkInput.value, "_blank");
+                };
+                saveTableData();
+            });
+            
+            // Handle remove button
+            removeButton.addEventListener("click", () => {
+                row.remove();
+                ornament.remove();
+                saveTableData();
+            });
+            
+            // Set initial tooltip
+            ornament.title = name || "No name";
+            
+            // Save to localStorage if not restoring
+            if (!isRestoring) saveTableData();
+            
+            return { row, ornament };
+        }
+        
+        // Remove ornament function
+        function removeOrnament(ornament) {
+            ornament.remove();
+        }
+        
+        // Clear ornaments function
+        function clearOrnaments() {
+            const ornaments = document.querySelectorAll('.ornament');
+            ornaments.forEach(ornament => {
+                ornament.style.animation = 'appear 0.3s ease-in reverse';
+                setTimeout(() => ornament.remove(), 300);
+            });
+            document.querySelector("#controlsTable tbody").innerHTML = "";
+        }
+        
+        // Add many ornaments function
+        function addManyOrnaments(count) {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+        
+            let added = 0;
+            const addBatch = () => {
+                for(let i = 0; i < 10 && added < count; i++) {
+                    addOrnament();
+                    added++;
+                }
+                if (added < count) {
+                    requestAnimationFrame(addBatch);
+                } else {
+                    buttons.forEach(btn => btn.disabled = false);
+                }
+            };
+            addBatch();
+        }
+        
+        // Add image ornament function
+        function addImageOrnament() {
+            const image = document.createElement("img");
+            image.src = "https://codehs.com/uploads/c889bb39a9155b2925f918efd6efcd69";
+            image.className = "image-ornament";
+        
+            const pos = getRandomPosition();
+            image.style.left = (pos.x)-20 + "px";
+            image.style.top = pos.y + "px";
+            image.style.width = "calc(min(90vw, 80vh, 800px) * 0.09)";
+            image.style.height = "calc(min(90vw, 80vh, 800px) * 0.07)";
+            image.style.position = "absolute";
+            image.style.transform = `rotate(${Math.random() * 360}deg)`;
+            image.style.transition = "transform 0.3s";
+            image.style.cursor = "pointer";
+        
+            document.querySelector(".tree").appendChild(image);
+        }
+        
+        // Add many image ornaments function
+        function addManyImageOrnaments(count) {
+            for (let i = 0; i < count; i++) {
+                addImageOrnament();
+            }
+        }
+        
+        // Controls visibility functions
+        function hideControls() {
+            const controls = document.querySelector(".container-right");
+            controls.style.display = "none";
+        }
+        
+        function showControls() {
+            const controls = document.querySelector(".container-right");
+            controls.style.display = "block";
+        }
+        
+        // Key sequence detection
+        let typedKeys = "";
+        document.addEventListener("keydown", (event) => {
+            if (event.shiftKey) {
+                typedKeys += event.key.toLowerCase();
+                if (typedKeys.includes("monkey")) {
+                    showControls();
+                    typedKeys = "";
+                }
+            }
+        });
+        
+        // Close button event listener
+        document.getElementById("closeControls").addEventListener("click", () => {
+            hideControls();
+        });
+        
+        // Window resize handler
+        // window.addEventListener('resize', () => {
+        //     
+        //     
+        // });
+        
+        // Initialize everything when the page loads
+        window.onload = () => {
+            // Hide controls initially
+            hideControls();
+            
+            // Load saved table data
+            const storedData = localStorage.getItem("tableData");
+            if (storedData) {
+                const rows = JSON.parse(storedData);
+                rows.forEach(row => {
+                    addTableRow(row.name, row.link, true);
+                });
+            }
+            
+            // Add image ornaments
+            addManyImageOrnaments(1500);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeLinkPanel();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
