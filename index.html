@@ -688,6 +688,71 @@
                 }
             });
         };
+        function ornament(name, link) {
+            // Create the ornament div
+            const ornament = document.createElement("div");
+            ornament.className = "ornament";
+            ornament.style.backgroundColor = getRandomColor(); // Optional: Use your random color function
+        
+            // Random position logic (or adjust for specific positions if needed)
+            const pos = getRandomPosition(); // Ensure `getRandomPosition()` is defined in your code
+            ornament.style.left = pos.x + "px";
+            ornament.style.top = pos.y + "px";
+        
+            // Add the name/initial as content
+            const initialSpan = document.createElement("span");
+            const initial = name ? name.charAt(0).toUpperCase() : "?"; // Use the first letter of the name
+            initialSpan.textContent = initial;
+            initialSpan.style.color = "white";
+            initialSpan.style.fontSize = "calc(min(90vw, 80vh, 800px) * 0.02)";
+            initialSpan.style.fontWeight = "bold";
+            initialSpan.style.display = "flex";
+            initialSpan.style.justifyContent = "center";
+            initialSpan.style.alignItems = "center";
+            initialSpan.style.height = "100%";
+            initialSpan.style.width = "100%";
+            ornament.appendChild(initialSpan);
+        
+            // Make the ornament clickable if a link is provided
+            if (link) {
+                ornament.onclick = () => {
+                    window.open(link, "_blank"); // Open the link in a new tab
+                };
+            }
+        
+            // Add the ornament to the tree
+            const tree = document.querySelector(".tree");
+            tree.appendChild(ornament);
+        }
+        
+        
+        
+        
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////
+        
+        //ADD ORNAMENTS BELOW 
+        //type like this "ornament(name, link)"
+        //for example => ornament("ichiro","ichiro.com")
+        ornament("ichiro","https://github.com/IchiroOkochi/Christmas.github.io")
+
+
+
+
+
+
+
+
+
+        
     </script>
 </body>
 </html>
