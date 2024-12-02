@@ -1,4 +1,4 @@
 # Christmas
 
 Use this link for testing:
-<a href="https://codehs.com/sandbox/ichirookochi/website-for-christmas-2/run">Use this link</a>
+<a href="https://ichirookochi.github.io/Christmas.github.io/">Use this link</a>
